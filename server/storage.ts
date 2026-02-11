@@ -2,7 +2,7 @@ import { db } from "./db";
 import {
   profile, experience, education, skills, projects, contactMessages,
   type Profile, type Experience, type Education, type Skill, type Project, type InsertContactMessage
-} from "@shared/schema";
+} from "../shared/schema";
 import { asc, desc } from "drizzle-orm";
 
 export interface IStorage {

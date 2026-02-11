@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+      target: base
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client:/app/client
+      - ./shared:/app/shared
+      - ./tailwind.config.ts:/app/client/tailwind.config.ts
+      - ./postcss.config.js:/app/client/postcss.config.js
+      - /app/client/node_modules
+    working_dir: /app/client
+    command: sh -c "cd /app/client && npm run dev -- --host"
+    environment:
+      - VITE_API_URL=http://localhost:5000
+    depends_on:
+      - server
+    restart: always
+
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: base
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./server:/app/server
+      - ./shared:/app/shared
+      - ./drizzle.config.ts:/app/server/drizzle.config.ts
+      - /app/server/node_modules
+    working_dir: /app/server
+    command: sh -c "cd /app/server && npm run db:push && npm run dev"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/portfolio
+      - PORT=5000
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=portfolio
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:

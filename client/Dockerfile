@@ -1,11 +1,11 @@
-FROM node:20-alpine AS builder
+FROM node:20-alpine AS base
 
 WORKDIR /app
 
 # Copy client definition and installs deps
 COPY client/package*.json ./client/
 WORKDIR /app/client
-RUN npm ci
+RUN npm install
 
 # Switch back to root to copy shared files if needed by config, 
 # but effectively we build inside client
@@ -15,6 +15,7 @@ WORKDIR /app
 COPY client ./client
 COPY shared ./shared
 
+FROM base AS builder
 # Build the client
 WORKDIR /app/client
 RUN npm run build
@@ -26,7 +27,8 @@ FROM nginx:alpine
 COPY --from=builder /app/client/dist/public /usr/share/nginx/html
 
 # Copy nginx config if you have one, or just use default
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx config
+COPY client/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 

@@ -1,4 +1,4 @@
-FROM node:20-alpine AS builder
+FROM node:20-alpine AS base
 
 WORKDIR /app
 
@@ -14,6 +14,7 @@ WORKDIR /app
 COPY server ./server
 COPY shared ./shared
 
+FROM base AS builder
 # Build the server (if using a build step)
 WORKDIR /app/server
 # We run the build script defined in server/package.json
@@ -28,17 +29,18 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copy built artifacts and dependencies
+# Copy built artifacts and dependencies
 COPY --from=builder /app/server/dist ./dist
 COPY --from=builder /app/server/package*.json ./
 COPY --from=builder /app/server/node_modules ./node_modules
-# We might need shared schema at runtime if not bundled.
-# The esbuild script bundles dependencies, but let's check.
-# If we bundle, we don't need node_modules (except native modules).
-# But usually simplest to keep node_modules.
+
+# Copy schema and config for migrations
+COPY shared ./shared
+COPY drizzle.config.ts .
 
 ENV NODE_ENV=production
 ENV PORT=5000
 
 EXPOSE 5000
 
-CMD ["npm", "run", "start"]
+CMD ["sh", "-c", "npm run db:push && npm run start"]

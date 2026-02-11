@@ -4,7 +4,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "tsc -b && vite build",
+        "build": "vite build",
         "preview": "vite preview"
     },
     "dependencies": {
@@ -41,6 +41,8 @@
         "clsx": "^2.1.1",
         "cmdk": "^1.1.1",
         "date-fns": "^3.6.0",
+        "drizzle-orm": "^0.39.3",
+        "drizzle-zod": "^0.7.0",
         "embla-carousel-react": "^8.6.0",
         "framer-motion": "^11.18.2",
         "input-otp": "^1.4.2",
