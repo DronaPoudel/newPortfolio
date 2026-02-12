@@ -2,13 +2,9 @@ version: '3.8'
 
 services:
   client:
-    build:
-      context: .
-      dockerfile: client/Dockerfile
+    image: ghcr.io/dronapoudel/newportfolio-frontend:1.0
     ports:
       - "8080:80"
-    depends_on:
-      - server
     restart: always
 
   server:
